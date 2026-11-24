@@ -1,97 +1,122 @@
-<!doctype html>
-<html lang="zh-CN">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>coder-app-name</title>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
-    <style>
-      /* 内联样式确保主题色立即生效，避免闪烁 */
-      html,
-      body {
-        margin: 0;
-        padding: 0;
-        width: 100%;
-        height: 100%;
-      }
-      html.light,
-      html.light body {
-        background-color: #ffffff !important;
-        color: #000000;
-      }
-      html.dark,
-      html.dark body {
-        background-color: #1a1a1a !important;
-        color: #ffffff;
-      }
-    </style>
-    <script>
-      // 在 React 加载前立即设置主题，避免闪烁
-      (function () {
-        const isInIframe = window.self !== window.top;
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Интерактивная Солнечная система</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🌌 Солнечная система</h1>
+            <p class="subtitle">Интерактивная обучающая демонстрация</p>
+        </header>
 
-        function applyThemeToDOM(theme) {
-          document.documentElement.classList.remove("light", "dark");
-          document.documentElement.classList.add(theme);
-          document.documentElement.setAttribute("data-theme", theme);
-        }
+        <div class="main-content">
+            <div class="canvas-wrapper">
+                <canvas id="solarSystem"></canvas>
+                <div class="canvas-overlay" id="planetInfo">
+                    <div class="info-header">
+                        <span class="info-icon" id="infoIcon">🪐</span>
+                        <h2 id="planetName">Выберите планету</h2>
+                        <button class="close-btn" id="closeInfo">✕</button>
+                    </div>
+                    <div class="info-body">
+                        <div class="info-row">
+                            <span class="info-label">📏 Диаметр:</span>
+                            <span class="info-value" id="planetDiameter">—</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">☀️ Расстояние от Солнца:</span>
+                            <span class="info-value" id="planetDistance">—</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">🔄 Орбитальный период:</span>
+                            <span class="info-value" id="planetPeriod">—</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">🌡️ Температура:</span>
+                            <span class="info-value" id="planetTemp">—</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">🌙 Спутники:</span>
+                            <span class="info-value" id="planetMoons">—</span>
+                        </div>
+                        <div class="info-description" id="planetDesc">
+                            Нажмите на планету для просмотра информации
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-        if (isInIframe) {
-          // 监听父窗口主动推送的主题消息
-          window.addEventListener("message", function (event) {
-            if (event.data && typeof event.data.theme === "string") {
-              const theme = event.data.theme;
-              if (theme === "light" || theme === "dark") {
-                applyThemeToDOM(theme);
-              }
-            }
-          });
-        } else {
-          // 非 iframe 环境，使用默认 light 主题
-          applyThemeToDOM("light");
-        }
-      })();
-    </script>
-      <script>
-      (function () {
-        if (window.self === window.top) return;
-        var reported = {};
-        window.addEventListener("error", function (event) {
-          // 资源加载失败的 error 事件没有 message，此处仅上报 JS 运行时错误
-          if (!event || !event.message) return;
-          var key =
-            event.message + "|" + (event.filename || "") + "|" + (event.lineno || 0);
-          if (reported[key]) return; // 相同错误只上报一次，避免渲染循环刷屏
-          reported[key] = true;
-          try {
-            window.parent.postMessage(
-              {
-                type: "sandbox-runtime-error",
-                payload: {
-                  message: String(event.message).slice(0, 500),
-                  filename: event.filename || "",
-                  lineno: event.lineno || 0,
-                  colno: event.colno || 0,
-                  stack:
-                    event.error && event.error.stack
-                      ? String(event.error.stack).slice(0, 2000)
-                      : ""
-                }
-              },
-              "*"
-            );
-          } catch (e) {
-            /* 上报失败不影响页面运行 */
-          }
-        });
-      })();
-    </script>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+            <div class="controls-panel">
+                <div class="controls-section">
+                    <h3>⚙️ Управление</h3>
+                    <div class="control-buttons">
+                        <button class="ctrl-btn play-btn" id="playBtn" title="Воспроизведение">
+                            ▶
+                        </button>
+                        <button class="ctrl-btn pause-btn" id="pauseBtn" title="Пауза">
+                            ⏸
+                        </button>
+                        <button class="ctrl-btn reset-btn" id="resetBtn" title="Сброс">
+                            ⏮
+                        </button>
+                    </div>
+                </div>
+
+                <div class="controls-section">
+                    <h3>🚀 Скорость</h3>
+                    <div class="speed-control">
+                        <input type="range" id="speedSlider" min="0.1" max="5" step="0.1" value="1">
+                        <div class="speed-labels">
+                            <span>0.1x</span>
+                            <span class="speed-value" id="speedValue">1.0x</span>
+                            <span>5.0x</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="controls-section">
+                    <h3>🔭 Масштаб</h3>
+                    <div class="speed-control">
+                        <input type="range" id="zoomSlider" min="0.5" max="2" step="0.1" value="1">
+                        <div class="speed-labels">
+                            <span>0.5x</span>
+                            <span class="speed-value" id="zoomValue">1.0x</span>
+                            <span>2.0x</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="controls-section">
+                    <h3>👁️ Отображение</h3>
+                    <div class="toggle-group">
+                        <label class="toggle-label">
+                            <input type="checkbox" id="showOrbits" checked>
+                            <span>Орбиты</span>
+                        </label>
+                        <label class="toggle-label">
+                            <input type="checkbox" id="showLabels" checked>
+                            <span>Названия</span>
+                        </label>
+                        <label class="toggle-label">
+                            <input type="checkbox" id="showTrails">
+                            <span>Следы</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="controls-section planets-list">
+                    <h3>🪐 Планеты</h3>
+                    <div class="planet-buttons" id="planetButtons">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="script.js"></script>
+</body>
 </html>
